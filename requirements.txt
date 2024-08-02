@@ -1,0 +1,6 @@
+numpy
+pandas
+astropy
+matplotlib
+mechanize
+astrotools
