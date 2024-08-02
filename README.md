@@ -1,4 +1,4 @@
-# flashcurve
+# *flashcurve*
 ## A machine-learning approach for the fast generation of adaptive-binning for lightcurves with Fermi-LAT gamma-ray data
 
 ### Notes
