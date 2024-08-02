@@ -2,16 +2,18 @@
 ## A machine-learning approach for the fast generation of adaptive-binning for lightcurves with Fermi-LAT gamma-ray data
 
 ### Notes
-This is a python tool which can be setup on any device with python version >= 3.7
+*flashcurve* is a python tool which can be setup on any device with python version >= 3.7
 
-It should mostly be used to create adaptive time bins with constant significance (TS), but can also be used make images
+It should mostly be used to create adaptive time bins with constant significance (TS), but can also be used make images of data within time bins (see *flashcurve* paper).
 
-This tool requires tensorflow-lite runtime to be installed seperately. This can be done via
+*flashcurve* requires tensorflow-lite runtime to be installed seperately. This can be done via
 ```
 pip install --extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime
 ```
 
-Installation of the tool is done via
+If you already have tensorflow installed, then you can just simply comment out `import tflite_runtime.interpreter as tflite` in `data_tools.py` and `image_tools` and uncomment `import tensorflow.lite as tflite` before installation.
+
+Installation of *flashcurve* is done via
 ```
 pip install -e <path to flashcurve>/flashcurve
 ```
@@ -24,9 +26,9 @@ Check the `lc_search.py` script for a detailed example of usage. A jupyter noteb
 
 ### Acknowledgements
 
-Theo Glauch (project supervisor)
+_Theo Glauch_ (project supervisor)
 
-Narek Sahakyan (lightcurve consultation)
+_Narek Sahakyan_ (lightcurve consultation)
 
 [pyLCR](https://github.com/dankocevski/pyLCR)
 
