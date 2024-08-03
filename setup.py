@@ -16,13 +16,12 @@ setup(name='flashcurve',
         # '': ['fermi_tools.py'],
         '': ['lc_search.py'],
     },
-    
-    install_requires=['numpy',
-                'pandas',
-                'astropy',
-                'matplotlib',
-                'mechanize',
-                'astrotools'],
+    # install_requires=['numpy',
+    #             'pandas',
+    #             'astropy',
+    #             'matplotlib',
+    #             'mechanize',
+    #             'astrotools'],
     entry_points={
         'console_scripts': [
             # Define script entry points if needed
