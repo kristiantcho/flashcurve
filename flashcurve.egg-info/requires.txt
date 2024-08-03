@@ -1,6 +1,0 @@
-numpy
-pandas
-astropy
-matplotlib
-mechanize
-requests
