@@ -13,7 +13,7 @@ setup(name='flashcurve',
         'flashcurve': ['*.yaml'], 
     },
     exclude_package_data={
-        '': ['fermi_tools.py'],
+        # '': ['fermi_tools.py'],
         '': ['lc_search.py'],
     },
     
