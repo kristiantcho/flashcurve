@@ -2,7 +2,7 @@
 ## A machine-learning approach for the fast generation of adaptive-binning for lightcurves with Fermi-LAT gamma-ray data
 
 ### Notes
-*flashcurve* is a python tool which can be setup on any device with python version >= 3.7
+*flashcurve* is a python tool which can be setup on linux/macOS with python version >= 3.7
 
 It should mostly be used to create adaptive time bins with constant significance (TS), but can also be used make images of data within time bins (see *flashcurve* paper).
 
