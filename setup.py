@@ -21,7 +21,6 @@ setup(name='flashcurve',
                 'astropy',
                 'matplotlib',
                 'mechanize',
-                'astrotools',
                 'requests',
                 ],
     entry_points={
