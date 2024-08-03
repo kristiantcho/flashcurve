@@ -3,4 +3,4 @@ pandas
 astropy
 matplotlib
 mechanize
-astrotools
+requests

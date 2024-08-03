@@ -21,7 +21,9 @@ setup(name='flashcurve',
                 'astropy',
                 'matplotlib',
                 'mechanize',
-                'astrotools'],
+                'astrotools',
+                'requests',
+                ],
     entry_points={
         'console_scripts': [
             # Define script entry points if needed

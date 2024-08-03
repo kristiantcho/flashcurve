@@ -3,6 +3,7 @@ from astropy.io import fits
 import yaml
 import numpy as np
 import os
+import importlib.resources
 
 
 def setup_config(source_dir=None, data_dir = None, target_dir = None,  source_name=None, ra=0.0, dec=0.0, t_int = None, sc_dir=None, emin=None):
@@ -22,7 +23,7 @@ def setup_config(source_dir=None, data_dir = None, target_dir = None,  source_na
             event_file.write("\n".join(ph_files))
     
     config_path = os.path.join(target_dir, "config.yaml")
-    with open("Flashcurve/pyscripts/default.yaml", "r") as stream:
+    with open(importlib.resources.path('flashcurve', 'default.yaml'), "r") as stream:
         config = yaml.safe_load(stream)
 
     config['selection']['target'] = source_name #check Martina's code for cases where source name is not known
@@ -34,10 +35,10 @@ def setup_config(source_dir=None, data_dir = None, target_dir = None,  source_na
     if sc_dir is not None:
         spacecraft_dir = sc_dir
     else:
-        spacecraft_dir = 'Flashcurve/lc_stuff/lat_spacecraft_merged.fits'
+        spacecraft_dir = 'flashcurve/fermi_stuff/lat_spacecraft_merged.fits'
     config['data']['scfile'] = spacecraft_dir
 
-    config['model']['catalogs'] = "Flashcurve/lc_stuff/catalogs/gll_psc_v31.fit"
+    config['model']['catalogs'] = importlib.resources.path('flashcurve', 'gll_psc_v31.fit')
 
     if emin is not None:
         config['selection']['emin'] = emin

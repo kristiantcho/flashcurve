@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import astrotools as at
+from astropy.coordinates import SkyCoord
+import astropy.units as au
+# import astrotools as at
 # import tensorflow.lite as tflite
 import tflite_runtime.interpreter as tflite
 from mechanize import Browser
@@ -116,9 +118,11 @@ def angle_rotation(dec0, ra0, dec1, ra1):
     main_ra = ra0*np.pi/180
     old_dec = dec1*np.pi/180.
     old_ra = ra1*np.pi/180
-    old_vec = at.coord.ang2vec(phi= old_ra, theta = old_dec)
+    # old_vec = at.coord.ang2vec(phi= old_ra, theta = old_dec)
+    old_vec = SkyCoord(ra=old_ra*au.degree, dec=old_dec*au.degree, frame='icrs').cartesian.xyz
     # unit vectors
-    v1 = at.coord.ang2vec(phi= main_ra, theta = main_dec)
+    # v1 = at.coord.ang2vec(phi= main_ra, theta = main_dec)
+    v1 = SkyCoord(ra=main_ra*au.degree, dec=main_dec*au.degree, frame='icrs').cartestian.xyz
     v2 = [1,0,0]
     u = v1 / np.linalg.norm(v1)
     Ru = v2 / np.linalg.norm(v2)

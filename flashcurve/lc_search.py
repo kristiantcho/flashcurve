@@ -7,11 +7,10 @@ import glob
 import shutil
 from astropy.io import fits
 import importlib.resources
+import io
 
 # additional tools for post processing with fermipy (optional, requires fermipy installed)
 # from flashcurve import fermi_tools as ft
-
-
 
 #Stop tflite from printing info message constantly:
 
@@ -30,7 +29,8 @@ if __name__ == '__main__':
     source_n = source.replace(' ', '_')
 
     data_dir = os.path.join('fermi_lc_tests', source_n + '_test') # define directory where all data and time bins will be saved
-    source_locs = fits.open(importlib.resources.path('flashcurve.lc_stuff.catalogs', 'gll_psc_v31.fit')) # get source RA and Dec from here (example)
+    source_locs = fits.open(importlib.resources.path('flashcurve', 'gll_psc_v31.fit')) 
+    # source_locs = fits.open('flashcurve/flashcurve/lc_stuff/catalogs/gll_psc_v31.fit') # get source RA and Dec from here (example)
     src_indx = np.where(source_locs[1].data['Source_Name']==source)[0]
     ra = float(source_locs[1].data['RAJ2000'][src_indx])
     dec = float(source_locs[1].data['DEJ2000'][src_indx])
@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, ts_opt = [50,75], e_check=500, min_time=0.1*3600*24, p_check=2, quiet = False) 
     
-    # this is the time bin search function, 
+    # create_LC_bins is the time bin search function, 
     # ts_opt sets the range for the optimal TS which each
     # time bin should have, other parameters like
     # min_time determine the size of the time window
