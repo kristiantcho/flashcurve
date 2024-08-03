@@ -1,14 +1,41 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
+from setuptools.command.install import install as _install
+import os
+import shutil
+import glob
 
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+# class CleanCommand(Command):
+#     """Custom clean command to tidy up the project root."""
+#     user_options = []
+
+#     def initialize_options(self):
+#         pass
+
+#     def finalize_options(self):
+#         pass
+
+#     def run(self):
+#         for dirpath in ('build', 'dist', '*.egg-info'):
+#             for path in glob.glob(dirpath):
+#                 if os.path.isdir(path):
+#                     shutil.rmtree(path)
+#                 elif os.path.exists(path):
+#                     os.remove(path)
+
+# class InstallAndCleanCommand(_install):
+#     """Custom install command to run clean after install."""
+    
+#     def run(self):
+#         _install.run(self)
+#         self.run_command('clean')
+
 
 setup(name='flashcurve',
     version='0.1',
     packages=find_packages(),
     include_package_data=True,
     package_data={
-        'flashcurve': ['*.fits'],  
+        'flashcurve': ['*.fit'],  
         'flashcurve': ['*.tflite'],  
         'flashcurve': ['*.yaml'], 
     },
@@ -40,4 +67,9 @@ setup(name='flashcurve',
         # 'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    python_requires='>=3.7',)
+    python_requires='>=3.7',
+    # cmdclass={
+    #     'clean': CleanCommand,
+    #     'install': InstallAndCleanCommand,
+    # },
+    )

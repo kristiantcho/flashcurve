@@ -5,6 +5,8 @@ import numpy as np
 import os
 import importlib.resources
 
+with importlib.resources.path('flashcurve', 'gll_psc_v31.fit') as resource_path:
+    cat_path = str(resource_path)
 
 def setup_config(source_dir=None, data_dir = None, target_dir = None,  source_name=None, ra=0.0, dec=0.0, t_int = None, sc_dir=None, emin=None):
 
@@ -38,7 +40,7 @@ def setup_config(source_dir=None, data_dir = None, target_dir = None,  source_na
         spacecraft_dir = 'flashcurve/fermi_stuff/lat_spacecraft_merged.fits'
     config['data']['scfile'] = spacecraft_dir
 
-    config['model']['catalogs'] = importlib.resources.path('flashcurve', 'gll_psc_v31.fit')
+    config['model']['catalogs'] = cat_path
 
     if emin is not None:
         config['selection']['emin'] = emin

@@ -12,33 +12,35 @@ import multiprocessing as mp
 import time
 import importlib.resources
 
+with importlib.resources.path('flashcurve', 'gll_psc_v31.fit') as resource_path:
+    cat_path = str(resource_path)
+    
+with importlib.resources.path('flashcurve', 'model.tflite') as resource_path:
+    model_path = str(resource_path)
+
+
 class fermimage:
     """
     Class which provides methods for creating Fermi dataframes, generating 2D zoom images,
     printing images with optional markers, and creating light curve bins based on specified criteria.
     
-    :param fermi_path: The `fermi_path` parameter is the path to the directory containing FITS
-    files. These FITS files are used to create a dataframe for further processing
-    :param t_int: The `t_int` parameter in the `create_LC_bins` method refers to the time interval for
-    which you want to create the light curve bins. It is a list containing two elements - the start time
-    and end time of the interval for which you want to analyze the data and create the time bins
+    :param fermi_path: The `fermi_path` parameter is the path to the directory containing FITS files. These FITS files are used to create a dataframe for further processing
+    :param t_int: The `t_int` parameter in the `create_LC_bins` method refers to the time interval for which you want to create the light curve bins. It is a list containing two elements - the start time
+     and end time of the interval for which you want to analyze the data and create the time bins
     :param allow_multiprocessing: boolean for whether multiprocessing is to be used for time bin search
-    :param num_threads: specify the number of threads to be used for processing images during the time bin search in parallel
-    :param num_workers:  number of worker processes to use for parallel
-    processing of images and time bin search
+    :param num_threads: specify the number of threads to be used for the tf_lite interpreter, for predicting TS per image
+    :param num_workers:  number of workers (processors) to use for parallel
+    processing of images in one batch within a time window 
     :param image_dir: used to specify the directory where the generated images will be saved. If you have a specific directory path in
     mind where you want the images to be saved, you can provide that path
-    :param array_dir: specify the
-    directory where arrays will be saved. This directory will be used to store the arrays generated
-    during the processing of the data. It can be set to a specific directory path where you want the
-    arrays to be saved
+    :param array_dir: specify the directory where arrays will be saved. This directory will be used to store the arrays generated
+     during the processing of the data. It can be set to a specific directory path where you want the arrays to be saved
     :param image: image array for post-processing if an image has already been generated
     :param tick_skip: used to determine the interval at which ticks are displayed on the plot axes when generating the altitude-zoom images.
-    It specifies how many ticks to skip between each displayed tick on the plot axes for RA and Dec
-    differences, defaults to 7 (optional)
+    It specifies how many ticks to skip between each displayed tick on the plot axes for RA and Dec differences, defaults to 7 (optional)
     """
 
-    def __init__(self, fermi_path = None, bin_num = 56, ra = None, dec = None, model_path = importlib.resources.path('flashcurve', 'model.tflite'), max_psi = 12, 
+    def __init__(self, fermi_path = None, bin_num = 56, ra = None, dec = None, model_path = model_path, max_psi = 12, 
                 old_image=False, max_energy=3e5, image_dir=None, psi_square=True, array_dir=None, image = None, num_workers=3, 
                 image_pos=None, tick_skip = 7, alt_max_angle = 12, allow_multiprocessing = True, num_threads=3):
         
@@ -350,7 +352,7 @@ class fermimage:
         return figure, ax
     
     
-    def make_nearby_srcs_image(self, src_name = None, cat_path = importlib.resources.path('flashcurve.lc_stuff.catalogs', 'gll_psc_v31.fit'), loc_only = False):
+    def make_nearby_srcs_image(self, src_name = None, cat_path = cat_path, loc_only = False):
         """
         Generates an image based on nearby sources of a specified source in the 4FGL catalog
         

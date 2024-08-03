@@ -111,18 +111,18 @@ def great_circle_dis(ra0,dec0,ra1,dec1):
 def angle_rotation(dec0, ra0, dec1, ra1):
     """
     Calculates rotation matrix to align dec0 & ra0 to x-axis
-    Then returns transformed ra1 & dec1
+    Then returns transformed ra1 & dec1 in deg
     """
 
-    main_dec = dec0*np.pi/180.
-    main_ra = ra0*np.pi/180
-    old_dec = dec1*np.pi/180.
-    old_ra = ra1*np.pi/180
+    main_dec = dec0
+    main_ra = ra0
+    old_dec = dec1
+    old_ra = ra1
     # old_vec = at.coord.ang2vec(phi= old_ra, theta = old_dec)
-    old_vec = SkyCoord(ra=old_ra*au.degree, dec=old_dec*au.degree, frame='icrs').cartesian.xyz
+    old_vec = SkyCoord(ra=old_ra, dec=old_dec, frame='icrs', unit=(au.deg, au.deg)).cartesian.xyz.value
     # unit vectors
     # v1 = at.coord.ang2vec(phi= main_ra, theta = main_dec)
-    v1 = SkyCoord(ra=main_ra*au.degree, dec=main_dec*au.degree, frame='icrs').cartestian.xyz
+    v1 = SkyCoord(ra=main_ra, dec=main_dec, frame='icrs', unit=(au.deg, au.deg)).cartesian.xyz.value
     v2 = [1,0,0]
     u = v1 / np.linalg.norm(v1)
     Ru = v2 / np.linalg.norm(v2)

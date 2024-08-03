@@ -9,27 +9,29 @@ from astropy.io import fits
 import importlib.resources
 import io
 
-# additional tools for post processing with fermipy (optional, requires fermipy installed)
+# additional tools for post processing with fermipy (optional, requires fermipy installed):
 # from flashcurve import fermi_tools as ft
 
-#Stop tflite from printing info message constantly:
+#Stop tflite from printing info message constantly if this happening for you:
 
-class SuppressTFLiteLogging(io.StringIO):
-    def write(self, message):
-        if "INFO: Created TensorFlow Lite XNNPACK delegate for CPU." not in message:
-            super().write(message)
+# class SuppressTFLiteLogging(io.StringIO):
+#     def write(self, message):
+#         if "INFO: Created TensorFlow Lite XNNPACK delegate for CPU." not in message:
+#             super().write(message)
+# sys.stderr = SuppressTFLiteLogging()
 
-sys.stderr = SuppressTFLiteLogging()
+with importlib.resources.path('flashcurve', 'gll_psc_v31.fit') as resource_path:
+    cat_path = str(resource_path)
 
-# to avoid issues with multiprocesses run under this if statement:
+# to avoid issues with multiple processes run everything under this if statement:
 
 if __name__ == '__main__':
     
-    source = '4FGL J0509.4+0542' # name of the source
+    source = '4FGL J0509.4+0542' # name of the source of interest
     source_n = source.replace(' ', '_')
 
-    data_dir = os.path.join('fermi_lc_tests', source_n + '_test') # define directory where all data and time bins will be saved
-    source_locs = fits.open(importlib.resources.path('flashcurve', 'gll_psc_v31.fit')) 
+    data_dir = os.path.join('./', source_n + '_test') # define directory where all data and time bins will be saved
+    source_locs = fits.open(cat_path) 
     # source_locs = fits.open('flashcurve/flashcurve/lc_stuff/catalogs/gll_psc_v31.fit') # get source RA and Dec from here (example)
     src_indx = np.where(source_locs[1].data['Source_Name']==source)[0]
     ra = float(source_locs[1].data['RAJ2000'][src_indx])
@@ -42,7 +44,7 @@ if __name__ == '__main__':
 
     fermi_df = images_obj.create_fermi_df() # make a pandas dataframe out of the data
 
-    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, ts_opt = [50,75], e_check=500, min_time=0.1*3600*24, p_check=2, quiet = False) 
+    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, ts_opt = [50,75], e_check=1000, min_time=2*3600*24, p_check=1, quiet = False) 
     
     # create_LC_bins is the time bin search function, 
     # ts_opt sets the range for the optimal TS which each
@@ -52,11 +54,12 @@ if __name__ == '__main__':
     # should be used within the time windows to test the TS of the time bins
     # based off whether their energy (above) and proximity (below)
     # the set threshold (this speeds up the search)
+    # quiet parameter silences progress printouts
     
     np.save(os.path.join(data_dir, source_n + '_t_bins.npy'), timebins) # time bins done!!!
     np.save(os.path.join(data_dir, source_n +'_pred_ts.npy'), ts_list)
 
-# to create lightcurve with fermi_tools which uses fermipy
+# optional: create the lightcurve with fermi_tools which uses fermipy
 
     # timebins = np.load(os.path.join(data_dir, source_n + '_t_bins.npy'))
     # sc_dir = glob.glob(os.path.join(data_dir, '*_SC*.fits'))[0]
@@ -64,7 +67,7 @@ if __name__ == '__main__':
     # gta = ft.setup_gta(os.path.join(data_dir, 'config.yaml'), source, delete_weak = True)
     # ft.create_lc(source_name=source, gta=gta, nthread=num_cpus, lc_bins=timebins, target_dir=data_dir, save_bins=False) 
     
-    # use data_tools.plot_lc(lightcurve_path\lightcurve*.npy) to plot the lightcurve!
+    # use flashcurve.data_tools.plot_lc('<lightcurve path>\lightcurve*.npy') to plot the lightcurve!
     
     # print('Fermi lightcurve complete')
     
