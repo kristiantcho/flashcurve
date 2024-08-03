@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages, Command
 from setuptools.command.install import install as _install
-import os
-import shutil
-import glob
+# import os
+# import shutil
+# import glob
 
 # class CleanCommand(Command):
 #     """Custom clean command to tidy up the project root."""
