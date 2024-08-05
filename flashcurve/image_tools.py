@@ -325,8 +325,8 @@ class fermimage:
             
             n_plt.set_xticks(ticks = x_ticks1[i], labels = ra_bins1[i])
             n_plt.set_yticks(ticks = y_ticks1[i], labels = dec_bins1[i])
-            n_plt.set_xlabel('RA Difference')
-            n_plt.set_ylabel('Dec Difference')
+            n_plt.set_xlabel('X-Axis')
+            n_plt.set_ylabel('Y-Axis')
             n_plt.set_title(e_bins[i] + ' MeV')
 
             if i <= 2:
