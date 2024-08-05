@@ -28,7 +28,9 @@ Check the `lc_search.py` script for a detailed example of usage. A jupyter noteb
 
 _Theo Glauch_ (project supervisor)
 
-_Narek Sahakyan_ (lightcurve consultation)
+_Narek Sahakyan_ & _Paolo Giommi_ (lightcurve consultation)
+
+
 
 [pyLCR](https://github.com/dankocevski/pyLCR)
 
