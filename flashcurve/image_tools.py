@@ -325,15 +325,26 @@ class fermimage:
             
             n_plt.set_xticks(ticks = x_ticks1[i], labels = ra_bins1[i])
             n_plt.set_yticks(ticks = y_ticks1[i], labels = dec_bins1[i])
-            n_plt.set_xlabel('X-Axis')
-            n_plt.set_ylabel('Y-Axis')
+            if i % 3 == 0:  # For leftmost plots
+                n_plt.set_ylabel('Y-Axis')
+            if i >= 3:  # For bottom plots
+                n_plt.set_xlabel('X-Axis')
             n_plt.set_title(e_bins[i] + ' MeV')
 
             if i <= 2:
                 ax[0,i] = n_plt
             else:
                 ax[1,i-3] = n_plt
-            figure.colorbar(im, ax = n_plt)
+            colorbar = figure.colorbar(im, ax = n_plt)
+            if i == 2:
+                colorbar.set_label('Photon Count')
+            elif i == 5:
+                colorbar.set_label('Photon Count')
+
+            if i <= 2:
+                ax[0,i] = n_plt
+            else:
+                ax[1,i-3] = n_plt
             
         figure.set_figwidth(9)
         if self.image_dir is not None:
