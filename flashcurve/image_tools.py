@@ -42,7 +42,7 @@ class fermimage:
 
     def __init__(self, fermi_path = None, bin_num = 56, ra = None, dec = None, model_path = model_path, max_psi = 12, 
                 old_image=False, max_energy=3e5, image_dir=None, psi_square=True, array_dir=None, image = None, num_workers=3, 
-                image_pos=None, tick_skip = 7, alt_max_angle = 12, allow_multiprocessing = True, num_threads=3):
+                image_pos=None, tick_skip = 14, alt_max_angle = 12, allow_multiprocessing = True, num_threads=3):
         
         self.fermi_path = fermi_path
         self.bin_num = bin_num
