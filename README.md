@@ -11,7 +11,7 @@ It should mostly be used to create adaptive time bins with constant significance
 pip install --extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime
 ```
 
-If this doesn't work, check the tensorflow lite [official installation guide](https://www.tensorflow.org/lite/guide/python). If you already have tensorflow installed, then you can just simply comment out `import tflite_runtime.interpreter as tflite` in `data_tools.py` and `image_tools.py` and uncomment `import tensorflow.lite as tflite` before installation. 
+If this doesn't work, check the tensorflow lite [official installation guide](https://www.tensorflow.org/lite/guide/python). If you already have tensorflow installed, then you can just simply comment out `import tflite_runtime.interpreter as tflite` in `image_tools.py` and uncomment `import tensorflow.lite as tflite` before installation. 
 
 Installation of *flashcurve* is done via
 ```

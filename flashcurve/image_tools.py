@@ -6,7 +6,7 @@ import tflite_runtime.interpreter as tflite
 from numpy.lib import recfunctions as rfn
 from astropy.io import fits
 import os
-from data_tools import great_circle_dis, predict_ts, angle_rotation
+from data_tools import great_circle_dis, angle_rotation
 import matplotlib as mpl
 import multiprocessing as mp
 import time
@@ -476,7 +476,7 @@ class fermimage:
                 if not quiet:
                     print(f'Image gen took {time.time() - init_time} s, now estimating TS')
                 init_time = time.time()
-                ts_batch.extend(np.array(predict_ts(images, self.model, max_ts, show_ts=(not quiet))).squeeze())
+                ts_batch.extend(np.array(mini_predict_ts(images, model_path=self.model_path, max_ts=max_ts, show_ts=(not quiet), num_threads=1)).squeeze())
                 ts_batch = np.array(ts_batch).squeeze()
                 if not quiet:
                     print(f'TS estimation took {time.time() - init_time} s')
@@ -624,9 +624,14 @@ def mini_predict_ts(image, model_path, num_threads, max_ts = 1, show_ts = False)
     interpreter.set_tensor(input_details[0]['index'], np.expand_dims(image, axis=0).astype(np.float32))
     interpreter.invoke()
     ts = max_ts*interpreter.get_tensor(output_details[0]['index'])
-    if show_ts:
-        print('predicted ts: ' + str(ts[0]), flush=True)
-    return ts[0]
+    if len(image.shape) < 4:
+        if show_ts:
+            print('predicted ts: ' + str(ts[0]), flush=True)
+        return ts[0]
+    else:
+        if show_ts:
+            print('predicted ts: ' + str(ts), flush=True)
+        return ts
     
 
 # alternative slower method, not working, do not use!

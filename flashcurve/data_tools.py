@@ -4,98 +4,12 @@ from astropy.coordinates import SkyCoord
 import astropy.units as au
 # import astrotools as at
 # import tensorflow.lite as tflite
-import tflite_runtime.interpreter as tflite
+# import tflite_runtime.interpreter as tflite
 from mechanize import Browser
 import requests
 import time
 import glob
 import os
-
-        
-def predict_ts(image, model, max_ts = 1, show_ts = False):
-        input_details = model.get_input_details()
-        output_details = model.get_output_details()
-        if len(image.shape) < 4:
-            model.set_tensor(input_details[0]['index'], np.expand_dims(image, axis=0).astype(np.float32))
-            ts = max_ts*model.get_tensor(output_details[0]['index'])
-        else:
-            input_shape = input_details[0]['shape']
-            batch_size = input_shape[0]
-            num_images = len(image)
-            num_batches = num_images // batch_size
-            results = []
-
-            for i in range(num_batches):
-                batch = image[i*batch_size:(i+1)*batch_size].astype("float32")
-                model.set_tensor(input_details[0]['index'], batch)
-                model.invoke()
-                output_data = model.get_tensor(output_details[0]['index'])
-                results.append(output_data)
-
-            # Handle any remaining images that don't fit into a full batch
-            remaining_images = image[num_batches*batch_size:].astype("float32")
-            if len(remaining_images) > 0:
-                padding = np.zeros((batch_size - len(remaining_images), 56, 56, 6), dtype=np.float32)
-                padded_images = np.concatenate([remaining_images, padding], axis=0)
-                model.set_tensor(input_details[0]['index'], padded_images)
-                model.invoke()
-                output_data = model.get_tensor(output_details[0]['index'])
-                results.append(output_data[:len(remaining_images)])
-
-            ts = max_ts*np.concatenate(results, axis=0)
-       
-        if len(image.shape) < 4:
-            if show_ts:
-                print('predicted ts: ' + str(ts[0]), flush=True)
-            return ts[0]
-        else:
-            if show_ts:
-                print('predicted ts: ' + str(ts), flush=True)
-            return ts
-
-
-def run_inference(batch, model_path, num_threads=2):
-    
-    interpreter = tflite.Interpreter(model_path=model_path, num_threads=num_threads)
-    interpreter.allocate_tensors()
-    # Get input and output details
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-
-    # Set the tensor to point to the input data to be inferred
-    interpreter.set_tensor(input_details[0]['index'], batch)
-
-    # Run inference
-    interpreter.invoke()
-
-    # Get the output data
-    output_data = interpreter.get_tensor(output_details[0]['index'])
-
-    return output_data
-
-# Step 3: Use Multiprocessing for Parallel Inference
-def process_batch(images, start_idx, end_idx, model_path, num_threads=2):
-    batch = images[start_idx:end_idx]
-
-    model = tflite.Interpreter(model_path=model_path, num_threads=num_threads)
-    model.allocate_tensors()
-    input_details = model.get_input_details()
-    input_shape = input_details[0]['shape']
-    
-    # Check if batch size matches, if not pad the batch
-    batch_size = len(batch)
-    if batch_size < input_shape[0]:
-        padding = np.zeros((input_shape[0] - batch_size, 1, 6, 56, 56), dtype=np.float32)
-        batch = np.concatenate([batch, padding], axis=0)
-
-    # Run inference on the batch
-    result = run_inference(batch.astype(np.float32), model_path, num_threads)
-
-    # Remove padding results if batch was padded
-    if batch_size < input_shape[0]:
-        result = result[:batch_size]
-
-    return result
 
 
 def MJD_to_MET(mjd_time):
