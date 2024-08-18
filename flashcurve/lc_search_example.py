@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     fermi_df = images_obj.create_fermi_df() # make a pandas dataframe out of the data
 
-    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, ts_opt = [50,75], e_check=1000, min_time=2*3600*24, p_check=1, quiet = False) 
+    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, ts_opt = [16,25], e_check=1000, min_time=2*3600*24, p_check=1, quiet = False) 
     
     # create_LC_bins is the time bin search function, 
     # ts_opt sets the range for the optimal TS which each
