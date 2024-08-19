@@ -13,7 +13,7 @@ pip install --extra-index-url https://google-coral.github.io/py-repo/ tflite_run
 
 If this doesn't work, check the tensorflow lite [official installation guide](https://www.tensorflow.org/lite/guide/python). If you already have tensorflow installed, then you can just simply comment out `import tflite_runtime.interpreter as tflite` in `image_tools.py` and uncomment `import tensorflow.lite as tflite` before installation. 
 
-Installation of *flashcurve* is done via
+Installation of *flashcurve* (after cloning this github repo) is done via
 ```
 pip install <path to flashcurve>
 ```
