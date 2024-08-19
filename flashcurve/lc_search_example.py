@@ -12,7 +12,7 @@ import io
 # additional tools for post processing with fermipy (optional, requires fermipy installed):
 # from flashcurve import fermi_tools as ft
 
-#Stop tflite from printing info message constantly if this happening for you:
+#Stop tflite from printing info message constantly if this occurs for you:
 
 # class SuppressTFLiteLogging(io.StringIO):
 #     def write(self, message):
@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     fermi_df = images_obj.create_fermi_df() # make a pandas dataframe out of the data
 
-    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, ts_opt = [16,25], e_check=1000, min_time=2*3600*24, p_check=1, quiet = False) 
+    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, save_arr=False, ts_opt = [16,25], e_check=1000, min_time=1*3600*24, p_check=1, quiet = False) 
     
     # create_LC_bins is the time bin search function, 
     # ts_opt sets the range for the optimal TS which each
@@ -55,6 +55,8 @@ if __name__ == '__main__':
     # based off whether their energy (above) and proximity (below)
     # the set threshold (this speeds up the search)
     # quiet parameter silences progress printouts
+    # save_ts and save_arr parameters determine whether to output the list of predicted TS for each time bin
+    # as well as the image array used to make the prediction - if False, empty lists are returned along with the time bins
     
     np.save(os.path.join(data_dir, source_n + '_t_bins.npy'), timebins) # time bins done!!!
     np.save(os.path.join(data_dir, source_n +'_pred_ts.npy'), ts_list)
