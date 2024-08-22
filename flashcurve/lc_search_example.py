@@ -27,30 +27,28 @@ with importlib.resources.path('flashcurve', 'gll_psc_v31.fit') as resource_path:
 
 if __name__ == '__main__':
     
-    source = '4FGL J0509.4+0542' # name of the source of interest
+    source = '4FGL J0509.4+0542' # 4FGL catalogue name of the source of interest (this is TXS 0506+056)
     source_n = source.replace(' ', '_')
 
     data_dir = os.path.join('./', source_n + '_test') # define directory where all data and time bins will be saved
     source_locs = fits.open(cat_path) 
-    # source_locs = fits.open('flashcurve/flashcurve/lc_stuff/catalogs/gll_psc_v31.fit') # get source RA and Dec from here (example)
+    # source_locs = fits.open('flashcurve/flashcurve/gll_psc_v31.fit') # or get source RA and Dec from here (example)
     src_indx = np.where(source_locs[1].data['Source_Name']==source)[0]
     ra = float(source_locs[1].data['RAJ2000'][src_indx])
     dec = float(source_locs[1].data['DEJ2000'][src_indx])
 
-    print(f'Working on {data_dir}')
-    images_obj = it.fermimage(fermi_path = data_dir, ra=ra, dec=dec, num_threads=2, num_workers=2) # initialize fermimage object with choice of number cpus (workers) and threads
+    print(f'Saving data in {data_dir}')
 
-    dt.get_ul_data(ra=ra, dec=dec, data_dir=data_dir, get_sc=True, max_angle=12,t_int = [5.8e8,6e8]) # function for downloading fermi-lat data, optional, you can also download the data manually
+    dt.get_ul_data(ra=ra, dec=dec, data_dir=data_dir, get_sc=True, max_angle=12,t_int = [5.8e8,6e8]) # function for downloading fermi-lat fits data, optional, you can also download the data manually
 
-    fermi_df = images_obj.create_fermi_df() # make a pandas dataframe out of the data
-
-    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, save_arr=False, ts_opt = [16,25], e_check=1000, min_time=1*3600*24, p_check=1, quiet = False) 
+    images_obj = it.fermimage(fermi_path = data_dir, ra=ra, dec=dec, num_threads=2, num_workers=2) # initialize fermimage object with directory where fits data is stored, source location, and choice of number cpus (workers) and threads
     
+    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, save_arr=False, ts_opt = [16,25], e_check=1000, min_time=0.5*3600*24, p_check=1, quiet = False) 
     # create_LC_bins is the time bin search function, 
     # ts_opt sets the range for the optimal TS which each
     # time bin should have, other parameters like
     # min_time determine the size of the time window
-    # while e_check and p_check filter which events' timestamps
+    # while e_check (in MeV) and p_check (in deg) filter which events' timestamps
     # should be used within the time windows to test the TS of the time bins
     # based off whether their energy (above) and proximity (below)
     # the set threshold (this speeds up the search)
