@@ -95,7 +95,7 @@ def plot_lc(pred_lc_path, fine_lc_path = None, alpha =0.5):
     return fig, ax
 
 
-def get_ul_data(ra, dec, data_dir, years = 5, get_sc = False, t_int = None, max_energy = 300000, max_angle = 12): 
+def get_ul_data(ra, dec, data_dir, years = 5, get_sc = False, t_int = None, max_energy = 300000, max_angle = 12, delete_old=True): 
     """
     Retrieve and download data files from the Fermi-LAT data server.
     
@@ -108,6 +108,7 @@ def get_ul_data(ra, dec, data_dir, years = 5, get_sc = False, t_int = None, max_
     :param max_energy: Maximum energy value in MeV for the data query. Defaults to 300 GeV (optional)
     :param max_angle: Maximum angle in degrees for the shape of the region of interest. Specifies the
     angular radius for the data query. Defaults to 12 degrees (optional)
+    :param delete_old: If set to `True`, old .fits files in `data_dir` will be deleted before the new ones are downloaded. Defaults to `True` (optional)
     :return: The `get_ul_data` function is returning None.
     """
     
@@ -179,14 +180,14 @@ def get_ul_data(ra, dec, data_dir, years = 5, get_sc = False, t_int = None, max_
         os.makedirs(data_dir)
     
     # remove old data
-
-    old_files = glob.glob(os.path.join(data_dir, '*PH*.fits'))
-    sc_old_files = glob.glob(os.path.join(data_dir, '*SC*.fits'))
-    if sc_old_files:     
-        old_files.append(*sc_old_files)
-    for f in old_files:
-        print("delete ", f)
-        os.remove(f)
+    if delete_old:
+        old_files = glob.glob(os.path.join(data_dir, '*PH*.fits'))
+        sc_old_files = glob.glob(os.path.join(data_dir, '*SC*.fits'))
+        if sc_old_files:     
+            old_files.append(*sc_old_files)
+        for f in old_files:
+            print("delete ", f)
+            os.remove(f)
 
     for tmp_url in download_urls:
         download_file(tmp_url, data_dir)
