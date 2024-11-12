@@ -18,7 +18,7 @@ Installation of *flashcurve* (after cloning this github repo) is done via
 pip install <path to flashcurve>
 ```
 
-Additionally, this repo contains a `fermi_tools.py` script with methods which require the fermipy package. Using this script is optional for creating lightcurves with the generated time bins. For information on how to install and use fermipy go to the [Fermipy wiki](https://fermipy.readthedocs.io/en/latest/).
+Additionally, this repo contains a `fermi_tools.py` script with methods which require the fermipy package. Using this script is optional for creating basic lightcurves with the generated time bins. For information on how to install and use fermipy go to the [Fermipy wiki](https://fermipy.readthedocs.io/en/latest/).
 
 ### Usage
 
