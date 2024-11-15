@@ -4,7 +4,7 @@
 ### Notes
 *flashcurve* is a python tool which can be setup on any machine with python version >= 3.7
 
-It should mostly be used to create adaptive time bins with constant significance (TS), but can also be used make images of data within time bins (see *flashcurve* paper).
+It should mostly be used to create adaptive time bins with constant significance (TS), but can also be used make images of data within time bins (see *flashcurve* paper). One can also predict the TS of these images.
 
 *flashcurve* requires tensorflow-lite runtime to be installed seperately. This can be done via
 ```
