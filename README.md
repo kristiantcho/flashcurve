@@ -24,7 +24,7 @@ Additionally, this repo contains a `fermi_tools.py` script with methods which re
 
 Check the `lc_search_example.py` script for a detailed example of usage. 
 
-Check `make_image_example.ipynb` jupyter notebook for an example of generating, printing and making a TS prediction for a standalone image. 
+Check `make_image_example.ipynb` jupyter notebook for an example of generating, printing and making a TS prediction for a standalone image of photon events within a single time bin. 
 
 ### Acknowledgements
 
