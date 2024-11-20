@@ -38,7 +38,7 @@ _Narek Sahakyan_ & _Paolo Giommi_ (lightcurve consultation)
 
 ---
 
-PLEASE do not forget to cite the original paper: (coming soon)
+PLEASE do not forget to cite the original paper: https://arxiv.org/abs/2411.12598
 
 Enjoy creating adaptive time bins :)
 
