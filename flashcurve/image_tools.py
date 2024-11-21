@@ -34,7 +34,7 @@ class fermimage:
     :param image_dir: used to specify the directory where the generated images will be saved. If you have a specific directory path in
     mind where you want the images to be saved, you can provide that path
     :param array_dir: specify the directory where arrays will be saved. This directory will be used to store the arrays generated
-     during the processing of the data. It can be set to a specific directory path where you want the arrays to be saved
+     during the data processing. It can be set to a specific directory path where you want the arrays to be saved
     :param image: image array for post-processing if an image has already been generated
     :param tick_skip: used to determine the interval at which ticks are displayed on the plot axes when generating the altitude-zoom images.
     It specifies how many ticks to skip between each displayed tick on the plot axes for RA and Dec differences, defaults to 7 (optional)
@@ -123,10 +123,10 @@ class fermimage:
         time interval. Used to generate multiple images at once/
         :param source_n: name of the gamma-ray source. Used to label the data points in the final output, defaults to none (optional)
         :param t_int: specific time interval for filtering the data. If `t_int` is provided, the function will filter
-        out data points that fall outside of the specified time interval before further processing. Used for generating a single image.
+        out data points outside the specified time interval before further processing. Used for generating a single image.
         :param overlap: boolean flag that determines how time bins are handled. When `overlap` is set to `False`, the function
         creates non-overlapping time bins using the specified `t_bins`. Defaults to False (optional)
-        :return: returns either a pandas Series object with counts per time bin, RA bin, Dec bin, and energy bin if multiple time bins are provided, or a
+        :return: returns either a pandas Series object with counts per time bin, RA bin, Dec bin, and energy bin if multiple time bins are provided or a
         numpy array representing an image of counts if a single image is being generated.
         """
 
@@ -188,12 +188,12 @@ class fermimage:
         for i in range(6):
             temp_df = src_lc_df.copy()
             
-            # for case of single images needed to be generated
+            # For case of single images needed to be generated
             if t_int is not None:
                 temp_df = temp_df.drop(temp_df[temp_df.TIME > t_int[1]].index)
                 temp_df = temp_df.drop(temp_df[temp_df.TIME < t_int[0]].index)
             
-            # filter out eenergies outside of curretn energy bin
+            # filter out energies outside of current energy bin
             temp_df = temp_df.drop(temp_df[temp_df.ENERGY <= e_bins[i]].index)
             temp_df = temp_df.drop(temp_df[temp_df.ENERGY >= e_bins[i+1]].index)
             # bin RA/Dec:
@@ -211,7 +211,7 @@ class fermimage:
                 final_df = temp_df.copy()
             else:
                 # combine dataframes from last (combined) and current energy bin(s)
-                # for some reason if I try to bin all the energy bins at the same time, the method don't work
+                # for some reason, if I try to bin all the energy bins at the same time, the method doesn't work
                 final_df = pd.concat([final_df,temp_df]) 
         final_df = final_df.reset_index(drop=True) #need to do this (I don't know/forgot why it doesn't work without it)
         # bin energy
@@ -240,7 +240,7 @@ class fermimage:
         
         :param src_image: nearby sources input image data. Passes additional image data to the function for overlay with the main image data (optional)
         :param loc_only: boolean flag that determines whether only the location of stars should be plotted or if additional
-        information should be included such as their average flux which changes the size of the stars accordingly (optional)
+        information should be included, such as their average flux, which changes the size of the stars accordingly (optional)
         :return: returns 2d image plot as a matplotlib figure object along with subplot object
         """
 
@@ -365,7 +365,7 @@ class fermimage:
     
     def make_nearby_srcs_image(self, src_name = None, cat_path = cat_path, loc_only = False):
         """
-        Generates an image based on nearby sources of a specified source in the 4FGL catalog
+        Generates an image based on nearby sources of a specified source in the 4FGL catalogue
         
         :param src_name: name of the gamma-ray source in the 4FGL catalog of interest
         :param loc_only: boolean for whether to only consider the location of the nearby
@@ -424,16 +424,16 @@ class fermimage:
         This function creates adaptive time bins based on certain criteria, generates images, and estimates TS
         values within those time bins.
         
-        :param ts_opt: list that specifies the range of TS (Test Statistic) values which each time bin's TS should fall within.
-        :param e_check: threshold value for filtering out potential time bins within a time window based on their (addtional) events' energy in MeV. Defaults to 1 GeV, any 
+        :param ts_opt: list that specifies the range of TS (Test Statistic) values within which each time bin's TS should fall.
+        :param e_check: threshold value for filtering out potential time bins within a time window based on their (additional) events' energy in MeV. Defaults to 1 GeV, any 
         events BELOW this threshold are not considered.
-        :param p_check: threshold value for filtering out potential time bins within a time window based on based on their their (addtional) events' proximity to the source in degrees, any 
+        :param p_check: threshold value for filtering out potential time bins within a time window based on their (additional) events' proximity to the source in degrees; any 
         events ABOVE this threshold are not considered. Defaults to 0.5 deg.
         :param save_ts: determines whether to save the calculated TS values of the final time bins. Defaults to False.
         :param save_arr: determines whether to save the generated image arrays of the final time bins. Defaults to False.
         :param min_time: size of the time window in seconds within which to check all overlapping time bins' TS within this at a time. Defaults to 1 day.
         :param quiet: control whether or not to print out progress messages and information during the time bin search. Defaults to True.
-        :return: Returns final time bins for the given fermi dataframe, as well as their predicted TS and image arrays if their corresponding save booleans are set to True (otherwise these are just empty lists)
+        :return: Returns final time bins for the given fermi dataframe, as well as their predicted TS and image arrays if their corresponding save booleans are set to True (otherwise, these are just empty lists)
         """
         p_t_df = self.create_fermi_df().copy()
         p_t_df = p_t_df.sort_values(by='TIME').reset_index()
