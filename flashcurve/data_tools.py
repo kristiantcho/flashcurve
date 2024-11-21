@@ -2,9 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.coordinates import SkyCoord
 import astropy.units as au
-# import astrotools as at
-# import tensorflow.lite as tflite
-# import tflite_runtime.interpreter as tflite
 from mechanize import Browser
 import requests
 import time
@@ -32,10 +29,7 @@ def angle_rotation(dec0, ra0, dec1, ra1):
     main_ra = ra0
     old_dec = dec1
     old_ra = ra1
-    # old_vec = at.coord.ang2vec(phi= old_ra, theta = old_dec)
     old_vec = SkyCoord(ra=old_ra, dec=old_dec, frame='icrs', unit=(au.deg, au.deg)).cartesian.xyz.value
-    # unit vectors
-    # v1 = at.coord.ang2vec(phi= main_ra, theta = main_dec)
     v1 = SkyCoord(ra=main_ra, dec=main_dec, frame='icrs', unit=(au.deg, au.deg)).cartesian.xyz.value
     v2 = [1,0,0]
     u = v1 / np.linalg.norm(v1)
@@ -103,7 +97,7 @@ def get_ul_data(ra, dec, data_dir, years = 5, get_sc = False, t_int = None, max_
     :param dec: Declination coordinate for the data query. 
     :param data_dir: Directory where the downloaded data files will be saved (string)
     :param get_sc: If set to `True`, the spacecraft file will be included in the data download process. Defaults to `False` (optional)
-    :param t_int: Time interval for the data query. mut be a list containing start and end times of the
+    :param t_int: Time interval for the data query. must be a list containing start and end times of the
     interval in MET (Mission Elapsed Time) format.
     :param max_energy: Maximum energy value in MeV for the data query. Defaults to 300 GeV (optional)
     :param max_angle: Maximum angle in degrees for the shape of the region of interest. Specifies the
