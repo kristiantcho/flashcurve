@@ -419,7 +419,7 @@ class fermimage:
     
                 
     def create_LC_bins(self, ts_opt=[16, 25], max_ts=1, e_check = 1000, p_check = 0.5, 
-                            save_ts=False, save_arr=False, min_time=3600*24, quiet = True):
+                            save_ts=False, save_arr=False, min_time=3600*24, verbose = 1):
         """
         This function creates adaptive time bins based on certain criteria, generates images, and estimates TS
         values within those time bins.
@@ -432,7 +432,7 @@ class fermimage:
         :param save_ts: determines whether to save the calculated TS values of the final time bins. Defaults to False.
         :param save_arr: determines whether to save the generated image arrays of the final time bins. Defaults to False.
         :param min_time: size of the time window in seconds within which to check all overlapping time bins' TS within this at a time. Defaults to 1 day.
-        :param quiet: control whether or not to print out progress messages and information during the time bin search. Defaults to True.
+        :param verbose: control whether or not to print out progress messages and information during the time bin search. 0 = no messages, 1 = include messages when a timebin is found (default), 2 = include messages about attempted time windows, 3 = include messages about each predicted TS in the time windows.
         :return: Returns final time bins for the given fermi dataframe, as well as their predicted TS and image arrays if their corresponding save booleans are set to True (otherwise, these are just empty lists)
         """
         p_t_df = self.create_fermi_df().copy()
@@ -464,41 +464,41 @@ class fermimage:
                 con_count += 1
                 continue
             time_window = [l_time, l_time + con_count*min_time]
-            if not quiet:
+            if verbose >= 2:
                 print(f'Checking time window: {time_window}', flush=True)
             if not self.allow_mp:    
-                if not quiet:
-                    print('Making images')
+                # if not quiet:
+                #     print('Making images')
                 init_time = time.time()
                 counts = self.create_2d_alt_zoom_images(fermi_df=p_t_df, t_bins = t_ints, overlap=True)
                 images = np.rollaxis(counts.values.reshape((int(len(counts)/(56*56*6)),56,56,6)), 2,1).astype('uint16')
                 image_batch.extend(images)
-                if not quiet:
+                if verbose >= 3:
                     print(f'Image gen took {time.time() - init_time} s, now estimating TS')
                 init_time = time.time()
-                ts_batch.extend(np.array(mini_predict_ts(images, model_path=self.model_path, max_ts=max_ts, show_ts=(not quiet), num_threads=1)).squeeze())
+                ts_batch.extend(np.array(mini_predict_ts(images, model_path=self.model_path, max_ts=max_ts, show_ts=(verbose >= 3), num_threads=1)).squeeze())
                 ts_batch = np.array(ts_batch).squeeze()
-                if not quiet:
+                if verbose >= 3:
                     print(f'TS estimation took {time.time() - init_time} s')
 
             else:
                 init_time = time.time()  
                 images, ts = parallel_process(fermi_df = p_t_df, t_ints = t_ints, max_ts=max_ts, num_threads=self.num_threads, 
-                                        num_workers=self.num_workers, model_path=self.model_path, create_image_func = self.create_2d_alt_zoom_images, show_ts=(not quiet)
+                                        num_workers=self.num_workers, model_path=self.model_path, create_image_func = self.create_2d_alt_zoom_images, show_ts=(verbose >= 3)
                                         )
                 image_batch.extend(images)
                 ts_batch.extend(ts)
                 ts_batch = np.array(ts_batch).squeeze()
                 if len(t_ints) > len(ts_batch):
                     t_ints = t_ints[:len(ts_batch)]
-                if not quiet:
+                if verbose >= 3:
                     print(f'Image gen + TS estimation took {time.time() - init_time} s')
             if np.shape(ts_batch) and (np.shape(ts_batch != (0,))):
                 best_inds = np.argwhere((ts_batch <= ts_opt[1]) & (ts_batch >= ts_opt[0]))
                 if len(best_inds) == 0:
                     if (np.all(ts_batch < ts_opt[0])):
                         if (r_time < filter_df['TIME'].iloc[-1]) and (r_time < p_t_df['TIME'].iloc[-1]):
-                            if not quiet:
+                            if verbose >= 2:
                                 print('No high TS, going to next time window')
                             search_finished = False
                             con_count += 1
@@ -512,7 +512,7 @@ class fermimage:
                             if save_arr:
                                 image_arrays.append(image_batch[-1])
                             timebins.append(t_ints[-1][1])
-                            if not quiet:
+                            if verbose >= 1:
                                 print(f'Last timebin = {t_ints[-1]}')
                                 print(f'Last TS found = {ts_batch[-1]}')
                             break
@@ -524,7 +524,7 @@ class fermimage:
                     best_ind = best_inds[-1][0]
                 over_ts_count = len(ts_batch[ts_batch >= ts_opt[1]])
                 if over_ts_count == 0:
-                    if not quiet:
+                    if verbose >= 2:
                         print('Last good TS was still in range of threshold, going to next time window')
                     search_finished = False
                     con_count += 1
@@ -533,13 +533,13 @@ class fermimage:
                     image_batch = []
                     continue
                 elif over_ts_count > 0:
-                    if not quiet:
+                    if verbose >= 2:
                         print('There was a too high TS present, taking nearest best previous TS')
                     best_ind = np.argwhere(ts_batch >= ts_opt[1])[0][0]
                     if (ts_batch[best_ind-1] >= ts_opt[0]) and (best_ind != 0):
                         best_ind -= 1
             elif np.shape(ts_batch) == (0,):
-                if not quiet:
+                if verbose >= 2:
                     print('No high energy/close proximity events at all, going to next time window')
                 search_finished = False
                 con_count += 1
@@ -562,7 +562,7 @@ class fermimage:
                 image_arrays.append(image_batch[best_ind])
             
             timebins.append(t_ints[best_ind][1])
-            if not quiet:
+            if verbose >= 1:
                 print(f'Best timebin = {t_ints[best_ind]}')
                 print(f'Best TS found = {ts_batch[best_ind]}')
                 print(f'Total time bins: {len(timebins) - 1}')
@@ -576,13 +576,13 @@ class fermimage:
             if r_time == filter_df['TIME'].iloc[-1]:
                 if r_time != t_ints[best_ind][1]:
                     image = self.create_2d_alt_zoom_images(fermi_df=p_t_df, t_int = [l_time, r_time])
-                    ts = mini_predict_ts(image, self.model_path, max_ts, show_ts=(not quiet))
+                    ts = mini_predict_ts(image, self.model_path, max_ts, show_ts=(verbose >= 3))
                     if save_ts:
                         ts_list.append(ts)
                     if save_arr:
                         image_arrays.append(image)
                     timebins.append([l_time, r_time])
-                    if not quiet:
+                    if verbose >= 1:
                         print(f'Last timebin = {[l_time, r_time]}')
                         print(f'Last TS found = {ts}')
                 break
@@ -591,7 +591,7 @@ class fermimage:
         elif timebins[-1] < timebins[-2]:
             timebins.pop(-2)
             ts_list.pop(-2)
-        if not quiet:
+        if verbose >= 0:
             print(f'Total time bins: {len(timebins) - 1}')
             print('Timebin search complete!')
         return timebins, ts_list, image_arrays

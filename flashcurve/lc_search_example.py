@@ -39,18 +39,20 @@ if __name__ == '__main__':
 
     print(f'Saving data in {data_dir}')
 
-    dt.get_ul_data(ra=ra, dec=dec, data_dir=data_dir, get_sc=True, max_angle=12,t_int = [5.8e8,6e8]) # function for downloading fermi-lat fits data, optional, you can also download the data manually
+    dt.get_ul_data(ra=ra, dec=dec, data_dir=data_dir, get_sc=False, max_angle=12,t_int = [5.7e8,6e8]) # function for downloading fermi-lat fits data, optional, you can also download the data manually
+    # if you plan to use the fermi_tools for post-processing then get_sc should be set to True to get the spacecraft file
+    # t_int is in MET (0.3e8 is roughly 1 yr) 
 
     images_obj = it.fermimage(fermi_path = data_dir, ra=ra, dec=dec, num_threads=2, num_workers=2) # initialize fermimage object with directory where fits data is stored, source location, and choice of number cpus (workers) and threads
     
-    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, save_arr=False, ts_opt = [16,25], e_check=1000, min_time=0.5*3600*24, p_check=1, quiet = False) 
+    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, save_arr=False, ts_opt = [16,25], e_check=1000, min_time=0.5*3600*24, p_check=1, verbose=1) 
     # 'create_LC_bins' is the time bin search function, 
     # 'ts_opt' sets the range for the optimal TS, which each time bin should have. 
     # 'min_time' determines the size of the time window
     # 'e_check' (in MeV) and 'p_check' (in deg) filter which events' timestamps
     # should be used within the time windows to test the TS of the time bins
     # based on whether their energy (above) and proximity (below) the set threshold (this speeds up the search)
-    # 'quiet' parameter silences progress printouts
+    # 'verbose' parameter controls progress printouts (0 = silent, 1 = only succesful timebins, 2 = inlcude time windows, 3 = include all TS predictions)
     # 'save_ts' and 'save_arr' parameters determine whether to output the list of predicted TS for each time bin
     # as well as the image array used to make the prediction - if False, empty lists are returned along with the time bins
     
