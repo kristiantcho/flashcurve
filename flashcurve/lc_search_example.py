@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     images_obj = it.fermimage(fermi_path = data_dir, ra=ra, dec=dec, num_threads=2, num_workers=2) # initialize fermimage object with directory where fits data is stored, source location, and choice of number cpus (workers) and threads
     
-    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, save_arr=False, ts_opt = [16,25], e_check=1000, min_time=0.5*3600*24, p_check=1, verbose=1) 
+    timebins, ts_list, _ = images_obj.create_LC_bins(save_ts=True, save_arr=False, ts_opt = [25,50], e_check=1000, min_time=0.5*3600*24, p_check=1, verbose=1) 
     # 'create_LC_bins' is the time bin search function, 
     # 'ts_opt' sets the range for the optimal TS, which each time bin should have. 
     # 'min_time' determines the size of the time window
