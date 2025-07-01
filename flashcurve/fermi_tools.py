@@ -8,7 +8,7 @@ import importlib.resources
 with importlib.resources.path('flashcurve', 'gll_psc_v31.fit') as resource_path:
     cat_path = str(resource_path)
 
-def setup_config(source_dir=None, data_dir = None, target_dir = None,  source_name=None, ra=0.0, dec=0.0, t_int = None, sc_dir=None, emin=None):
+def setup_config(source_dir=None, data_dir = None, target_dir = None,  source_name=None, ra=0.0, dec=0.0, t_int = None, sc_dir=None, emin=None, default_config_path = None):
 
     print('Setting up config')
     source_name = source_name.replace("_", " ")
@@ -25,8 +25,12 @@ def setup_config(source_dir=None, data_dir = None, target_dir = None,  source_na
             event_file.write("\n".join(ph_files))
     
     config_path = os.path.join(target_dir, "config.yaml")
-    with open(importlib.resources.path('flashcurve', 'default.yaml'), "r") as stream:
-        config = yaml.safe_load(stream)
+    if default_config_path is None:
+        with open(importlib.resources.path('flashcurve', 'default.yaml'), "r") as stream:
+            config = yaml.safe_load(stream)
+    else:
+        with open(default_config_path, "r") as stream:
+            config = yaml.safe_load(stream)
 
     config['selection']['target'] = source_name #check Martina's code for cases where source name is not known
 

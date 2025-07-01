@@ -41,8 +41,8 @@ class fermimage:
     """
 
     def __init__(self, fermi_path = None, bin_num = 56, ra = None, dec = None, model_path = model_path, max_psi = 12, 
-                old_image=False, max_energy=3e5, image_dir=None, psi_square=True, array_dir=None, image = None, num_workers=3, 
-                image_pos=None, tick_skip = 14, alt_max_angle = 12, allow_multiprocessing = True, num_threads=3):
+                old_image=False, max_energy=3e5, image_dir=None, psi_square=True, array_dir=None, image = None, num_workers=1, 
+                image_pos=None, tick_skip = 14, alt_max_angle = 12, allow_multiprocessing = True, num_threads=1):
         
         self.fermi_path = fermi_path
         self.bin_num = bin_num
@@ -595,8 +595,120 @@ class fermimage:
             print(f'Total time bins: {len(timebins) - 1}')
             print('Timebin search complete!')
         return timebins, ts_list, image_arrays
-
     
+    
+    def bisection_search_LC_bins(self, ts_opt=[16, 25], save_ts=False, save_arr=False, min_time=3600*24*14, verbose=1, max_depth=12):
+        """
+        This function searches for time bins using a bisection method based on certain criteria, generates images, and estimates TS values within those time bins.
+        
+        :param ts_opt: list that specifies the range of TS (Test Statistic) values within which each time bin's TS should fall.
+        :param save_ts: determines whether to save the calculated TS values of the final time bins. Defaults to False.
+        :param save_arr: determines whether to save the generated image arrays of the final time bins. Defaults to False.
+        :param min_time: size of the time window in seconds within which to check all overlapping time bins' TS within this at a time. Defaults to 1 day.
+        :param verbose: control whether or not to print out progress messages and information during the time bin search. 0 = no messages, 1 = include messages when a timebin is found (default), 2 = include messages about attempted time windows, 3 = include messages about each predicted TS in the time windows.
+        :return: Returns final time bins for the given fermi dataframe, as well as their predicted TS and image arrays if their corresponding save booleans are set to True (otherwise, these are just empty lists)
+        """
+        p_t_df = self.create_fermi_df().copy()
+        p_t_df = p_t_df.sort_values(by='TIME').reset_index()
+        timebins = [p_t_df['TIME'][0]]
+        ts_list = []
+        image_arrays = []
+        if verbose >= 1:
+            print(f'Starting timebin search between {p_t_df["TIME"].iloc[0]} and {p_t_df["TIME"].iloc[-1]}')
+        def get_ts_for_interval(start_time, end_time):
+            t_int = [start_time, end_time]
+            if verbose >= 3:
+                print(f'Checking time interval: {t_int}', flush=True)
+            images = self.create_2d_alt_zoom_images(fermi_df=p_t_df, t_int=t_int)
+            ts = mini_predict_ts(images, self.model_path, max_ts=1, show_ts=(verbose >= 2))
+            return ts, images
+
+        def bisection_search(start_time, end_time, old_end_time = None, last_high_ts=None, last_high_time=None,
+                             last_high_image=None, last_low_ts=None, last_low_time=None, last_low_image=None, depth=0, max_depth=max_depth, first_bin=False):
+            # if depth > max_depth or (end_time - start_time) < min_time:
+            if old_end_time is None:
+                old_end_time = end_time
+            ts, images = get_ts_for_interval(start_time, end_time)
+            if (depth >= max_depth):
+                if last_high_ts is not None:
+                    return last_high_time, last_high_ts, last_high_image
+                elif last_high_ts is None: #and end_time == p_t_df['TIME'].iloc[-1]:
+                    return None, last_low_ts, last_low_image
+                else:
+                    return None, None, None
+
+            
+            if ts_opt[0] <= ts <= ts_opt[1]:
+                return end_time, ts, images
+            elif ts < ts_opt[0]:
+                if first_bin:
+                    return None, ts, images
+                mid_time = (old_end_time + end_time) / 2
+                if (mid_time == end_time):
+                    mid_time = (start_time + end_time) / 2
+                    if depth == 0:
+                        last_low_ts = ts
+                        last_low_time = end_time
+                        last_low_image = images
+                # if depth == 0:
+                #     return None, ts, images
+                return bisection_search(start_time, mid_time, old_end_time, last_high_ts, last_high_time, last_high_image, last_low_ts, last_low_time, last_low_image, depth + 1)
+            else:
+                depth = 0
+                mid_time = (start_time + end_time) / 2
+                last_high_ts = ts
+                last_high_time = end_time
+                last_high_image = images
+                return bisection_search(start_time, mid_time, end_time, last_high_ts, last_high_time, last_high_image, last_low_ts, last_low_time, last_low_image, depth)
+        
+        start_time = p_t_df['TIME'].iloc[0]
+        fail_count = 1
+        while start_time < p_t_df['TIME'].iloc[-1]:
+            if start_time + min_time*fail_count >= p_t_df['TIME'].iloc[-1]:
+                min_time = p_t_df['TIME'].iloc[-1] - start_time
+                fail_count = 1
+            
+            mid_time, ts, images = bisection_search(start_time, start_time + min_time*fail_count, first_bin=True)
+            
+            if (mid_time is None) and (min_time + start_time < p_t_df['TIME'].iloc[-1]):
+                fail_count += 0.3
+                continue
+            
+            if save_ts:
+                ts_list.append(ts)
+            if save_arr:
+                image_arrays.append(images)
+            
+            if min_time*fail_count + start_time >= p_t_df['TIME'].iloc[-1]:
+                timebins.append(p_t_df['TIME'].iloc[-1])
+                break
+            
+            timebins.append(mid_time)
+            
+            if verbose >= 1:
+                print(f'Best timebin = {start_time} to {mid_time}')
+                print(f'Best TS found = {ts}')
+                print(f'Total time bins: {len(timebins) - 1}')
+                perc = round((mid_time - p_t_df['TIME'].iloc[0]) / (p_t_df['TIME'].iloc[-1] - p_t_df['TIME'].iloc[0]) * 100, 2)
+                print(f'{perc}% of total time processed', flush=True)
+            
+            fail_count = 1
+            
+            start_time = mid_time
+            
+        if ts is None:
+            print('weird low TS')
+            raise ValueError('No TS found')
+        if verbose >= 1:
+            print(f'Last timebin = {start_time} to {p_t_df["TIME"].iloc[-1]}')
+            print(f'Last TS found = {ts}')
+        if verbose >= 0:
+            print(f'Total time bins: {len(timebins) - 1}')
+            print('Timebin search complete!')
+        
+        return timebins, ts_list, image_arrays
+
+        
 def worker_func(fermi_df, t_int, max_ts, model_path, num_threads, create_image_func, show_ts):
     image = create_image_func(fermi_df=fermi_df, t_int = t_int)
     ts = mini_predict_ts(image, model_path, num_threads, max_ts, show_ts=show_ts)
